@@ -1,21 +1,9 @@
 package com.ibm.ims.lab;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.Statement;
-
+import java.sql.*;
 import com.ibm.ims.jdbc.*;
-import com.ibm.ims.dli.IMSConnectionSpec;
-import com.ibm.ims.dli.IMSConnectionSpecFactory;
-import com.ibm.ims.dli.PCB;
-import com.ibm.ims.dli.PSB;
-import com.ibm.ims.dli.PSBFactory;
-import com.ibm.ims.dli.Path;
-import com.ibm.ims.dli.SSAList;
-import com.ibm.ims.dli.tm.Application;
-import com.ibm.ims.dli.tm.ApplicationFactory;
-import com.ibm.ims.dli.tm.Transaction;
+import com.ibm.ims.dli.*;
+
 
 
 public class MyIMSJavaApplication {
