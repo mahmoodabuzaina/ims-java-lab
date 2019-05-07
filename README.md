@@ -261,7 +261,7 @@ executeAndDisplaySqlQuery();
 
 Then navigate to the `executeASqlInsertOrUpdate()` method.
 
-The database segment that we have been looking at is keyed off of the LASTNAME parameter, this means we will need a unique last name value from what's already in the database (which you should know from Exercise 3).
+The database segment that we have been looking at is keyed off of the LASTNAME parameter, this means we will need a unique last name value from what's already in the database (which you should know from Exercise 3), **That value will be provided for you**.
 
 The format for a SQL INSERT statement can be found [here](https://www.w3schools.com/sql/sql_insert.asp). Similar to what we did for a SQL SELECT, we will be using a `Statement` object to issue the SQL statement. However instead of using the `executeQuery()` method which is for database reads, we will want to use the `executeUpdate()` method for database inserts, updates and deletes.
 
