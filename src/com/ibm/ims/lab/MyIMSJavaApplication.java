@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Statement;
 
+import com.ibm.ims.jdbc.*;
 import com.ibm.ims.dli.IMSConnectionSpec;
 import com.ibm.ims.dli.IMSConnectionSpecFactory;
 import com.ibm.ims.dli.PCB;
@@ -15,6 +16,7 @@ import com.ibm.ims.dli.SSAList;
 import com.ibm.ims.dli.tm.Application;
 import com.ibm.ims.dli.tm.ApplicationFactory;
 import com.ibm.ims.dli.tm.Transaction;
+
 
 public class MyIMSJavaApplication {
 	public static void main(String[] args) {
@@ -63,7 +65,15 @@ public class MyIMSJavaApplication {
 		if (driverType == 4) {
 			// A Type-4 JDBC connection is used for distributed access over TCP/IP.
 			// Exercise 1: Retrieve a Type-4 JDBC connection and set it to the connection object
-			// Exercise 2: Change the connection to use a local XML file PHIPHO1.xml
+			
+			IMSDataSource ds = new IMSDataSource();
+
+//			ds.setHost("insert IP address");
+//			ds.setPortNumber(insert port number);
+//			ds.setDriverType(insert driver type number);
+//			ds.setDatabaseName("insert database name");
+			
+//			connection = ds.getConnection();
 			
 		} else if (driverType == 2) {
 			// A Type-2 JDBC connection is used for local access on the mainframe
@@ -131,8 +141,14 @@ public class MyIMSJavaApplication {
 			// Define your connection properties
 			IMSConnectionSpec imsConnSpec = IMSConnectionSpecFactory.createIMSConnectionSpec();
 			
+//			imsConnSpec.setDatastoreServer("insert IP address");
+//			imsConnSpec.setPortNumber(insert port number);
+//			imsConnSpec.setDatabaseName("insert database name");
+//			imsConnSpec.setDriverType(insert driver type number);
+			
 			// Create your PSB object
 			psb = PSBFactory.createPSB(imsConnSpec);
+			
 		} else if (driverType == 2) {
 			IMSConnectionSpec imsConnSpec = IMSConnectionSpecFactory.createIMSConnectionSpec();
 			
