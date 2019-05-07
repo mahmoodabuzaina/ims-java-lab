@@ -56,24 +56,27 @@ Now navigate to the `createAnImsConnection()` method and create your connection 
 
 To create your connection first create an IMSDataSource object. We will use an IMSDataSource to create our connection but you could also alternatively create it using the standard JDBC [DriverManager](https://www.ibm.com/support/knowledgecenter/en/SSEPH2_15.1.0/com.ibm.ims15.doc.apg/ims_odbjdbcconndrivermgr.htm) interface.
 
+The following line should already be in your java file:
 ```java
 IMSDataSource ds = new IMSDataSource();
 ```
-
-Now use the appropriate setters on your IMSDataSource object to set the following parameters:
-1. **host**: To be provided by the lab instructor
+In `MyIMSJavaApplication.java`, go ahead and uncomment the following lines of code:
+```java
+ds.setHost("insert IP address");
+ds.setPortNumber(insert port number);
+ds.setDriverType(insert driver type number);
+ds.setDatabaseName("insert database name");
+```
+You will notice some errors, that's because the values are not yet set. Now go ahead and use the following information to insert the correct values to set up your IMSDataSource object to establish a connection:
+1. **host**: IP address to be provided by the lab instructor
 2. **port number**: 2500
 3. **driver type**: 4
-4. **database name**: PHIDPHO1 *<-- This is actually the PSB name*
+4. **database name**: PHIDPHO1 *<-- This is actually the PSB name* (**Notice that O is not a zero**)
 
-Setter example for host:
-
-```java
-ds.setHost("zserveros.centers.ihost.com");
-```
 
 Once you've set all of the connection information, you can create a connection by calling the `getConnection()` method on your IMSDataSource object.
 
+Uncomment the following line by removing ('//'):
 ```java
 connection = ds.getConnection();
 ```
@@ -121,13 +124,13 @@ displayMetadata();
 
 Now navigate to the `displayMetadata()` implementation, you'll notice that we are first establishing a connection to the IMS system by taking advantage of the code we wrote in Exercise 1.
 
-Let's take that connection object and retrieve a queryable DatabaseMetaData object from that.
+Let's take that connection object and retrieve a queryable DatabaseMetaData object from that. Copy and paste the following line of code:
 
 ```java
 DatabaseMetaData dbmd = connection.getMetaData();
 ```
 
-The `DatabaseMetaData` class contains [several methods](https://docs.oracle.com/javase/7/docs/api/java/sql/DatabaseMetaData.html) for discovery which typically returns back a ResultSet object. Let's discover what PCBs are available by using the `getSchemas()` method. Remember that PCBs have a one to one mapping with schemas. The following code will show how to invoke the `getSchemas()` method and display the output.
+The `DatabaseMetaData` class contains [several methods](https://docs.oracle.com/javase/7/docs/api/java/sql/DatabaseMetaData.html) for discovery which typically returns back a ResultSet object. Let's discover what PCBs are available by using the `getSchemas()` method. Remember that PCBs have a one to one mapping with schemas. The following code will show how to invoke the `getSchemas()` method and display the output. Copy and paste the following code:
 
 ```java
 // Get IMS PCB information
@@ -142,8 +145,9 @@ while (rs.next()) {
   }
 }
 ```
+now run your application.
 
-In addition to using DatabaseMetaData for discovery of the database, we also used ResultSetMetaData above to identify information on the ResultSet returned by the getSchemas() call. We will be used ResultSetMetaData in most of the following exercises in order to display a readable output like the following:
+In addition to using DatabaseMetaData for discovery of the database, we also used ResultSetMetaData above to identify information on the ResultSet returned by the getSchemas() call. We will be using ResultSetMetaData in most of the following exercises in order to display a readable output like the following:
 
 ```
 TABLE_SCHEM: PCB01
@@ -153,14 +157,19 @@ DBD_NAME: DHIDPHO1
 DBD_TIMESTAMP: 1810711232054
 ```
 
-We can dig even further into the database segments and fields with the following query. Use the same format as above to process the ResultSet object:
-
+We can dig even further into the database segments and fields with the following queries. Replace the following query:
+```java
+ResultSet rs = dbmd.getSchemas("PHIDPHO1", null);
+```
+with the following query to get the segment information:
 ```java
 // Get IMS segment information
-rs = dbmd.getTables("PHIDPHO1", "PCB01", null, null);
-
+ResultSet rs = dbmd.getTables("PHIDPHO1", "PCB01", null, null);
+```
+or with the following query to get the field information:
+```java
 // Get IMS field information
-rs = dbmd.getColumns("PHIDPHO1", "PCB01", "A1111111", null);
+ResultSet rs = dbmd.getColumns("PHIDPHO1", "PCB01", "A1111111", null);
 ```
 
 That completes Exercise 2. Let's go ahead and disable the following line in the `main()` method by commenting it out:
@@ -184,6 +193,15 @@ The way we would execute a read query is through the `Statement.executeQuery()` 
 ```java
 Statement st = connection.createStatement();
 ResultSet rs = st.executeQuery(sql);
+ResultSetMetaData rsmd = rs.getMetaData();
+int colCount = rsmd.getColumnCount();
+
+System.out.println("Displaying IMS PCB metadata");
+while (rs.next()) {
+  for (int i = 1; i <= colCount; i++) {
+    System.out.println(rsmd.getColumnName(i) + ": " + rs.getString(i));
+  }
+}
 ```
 
 You can process the `ResultSet` in a similar manner to what we did in Exercise 2. You should see output similar to the following:
@@ -205,7 +223,7 @@ So where is this translation being done? In this case, the IMS JDBC driver handl
 
 Let's start by uncommenting the following line in the `main()` method.
 ```java
-displayDliTranslationForSqlQuery()
+displayDliTranslationForSqlQuery();
 ```
 
 Let's take a look at the the translation for the previous SQL query by adding the following code snippet to the `displayDliTranslationForSqlQuery()` method:
@@ -230,7 +248,7 @@ The SQL SELECT query which can be considered a batch retrieve, is translated int
 Feel free to come back to this exercise in order to look at the translation for the SQL statements in Exercise 5 and 6. For now, we'll go ahead and comment the following line in the `main()` method.
 
 ```java
-//executeAndDisplaySqlQuery();
+//displayDliTranslationForSqlQuery();
 ```
 
 
@@ -249,7 +267,7 @@ The format for a SQL INSERT statement can be found [here](https://www.w3schools.
 
 The following code snippet will insert a record into the database. Make sure to modify the values for the entry you want to add.
 ```java
-sql = "INSERT INTO PCB01.A1111111 (LASTNAME, FIRSTNAME, EXTENTION, ZIPCODE) VALUES ('insert your last name', 'insert your first name', '123456A', '12345')";
+sql = "INSERT INTO PCB01.A1111111 (LASTNAME, FIRSTNAME, EXTENSION, ZIPCODE) VALUES ('insert your last name', 'insert your first name', '123456A', '12345')";
 Statement st = connection.createStatement();
 System.out.println("Inserted " + st.executeUpdate(sql) + " record");
 ```
@@ -272,20 +290,20 @@ com.ibm.ims.drda.base.DrdaException: An error occurred processing the database D
 
 You'll notice that the we get some AIB return and reason code in addition to a DBPCB status code. This error information is actually returned by the IMS database as a result of attempting to execute the translated DL/I query. Looking at the [IMS knowledge center](https://www.ibm.com/support/knowledgecenter/en/SSEPH2_15.1.0/com.ibm.ims15.doc.msgs/msgs/ii.htm), we can see that the II status code is returned on a DL/I ISRT call when a record already exists in the database.
 
-Before moving on to the next exercise let's make sure we comment out any code we added to the `executeASqlInsertOrUpdate()` method.
+Before moving on to the next exercise, let's make sure we comment out any code we added to the `executeASqlInsertOrUpdate()` method.
 
 
 ### Exercise 6: Updating a record in the database
 Let's take the record we inserted in the previous exercise and update it using a SQL UPDATE statement. The format for a SQL UPDATE can be found [here](https://www.w3schools.com/sql/sql_update.asp).
 
 We want to make sure only update the record we inserted earlier. This can be done by qualifying on the LASTNAME field which we know is a unique field. The following code snippet shows how to issue a SQL UPDATE query, make sure to modify the fields and qualifier as necessary.
-Inside executeASqlInsertOrUpdate() add:
+Inside executeASqlInsertOrUpdate() add the following (don't forget to insert your last name):
 ```java
 sql = "UPDATE PCB01.A1111111 SET FIRSTNAME='BILBO' WHERE LASTNAME='insert your last name'";
 Statement st = connection.createStatement();
 System.out.println("Updated " + st.executeUpdate(sql) + " record(s)");
 ```
-Insure the last name you have entered in the SQL query is the same as exercise 5.
+Ensure the last name you have entered in the SQL query is the same last name specified in exercise 5.
 After running your application, you should see similar output in your console (you may have to scroll up to see the result):
 ```
 Updated 1 record(s)
@@ -324,10 +342,13 @@ We will again reuse the same connection information from our JDBC connection for
 You'll first want to instantiate an `IMSConnectionSpec` object to hold all of the connection properties. The following code snippet shows how to do that:
 ```java
 IMSConnectionSpec imsConnSpec = IMSConnectionSpecFactory.createIMSConnectionSpec();
-imsConnSpec.setDatastoreServer("IP will be provided");
-imsConnSpec.setPortNumber(2500);
-imsConnSpec.setDatabaseName("xml://PHIDPHO1");
-imsConnSpec.setDriverType(4);
+```
+In your java file, uncomment the following lines by removing ('//') and set the approapriate values in the setters:
+```java
+imsConnSpec.setDatastoreServer("insert IP address");
+imsConnSpec.setPortNumber(insert port number);
+imsConnSpec.setDatabaseName("insert database name");
+imsConnSpec.setDriverType(insert driver type number);
 ```
 
 Notice that the main difference here from what we did with the `IMSDataSource` object in Exercise 1, is we use `IMSConnectionSpec.setDatastoreServer()` instead of `IMSDataSource.setHost()` but they both point to the same hostname or ip address for your IMS Connect.
@@ -383,7 +404,7 @@ pcb.getUnique(path, ssaList, false);
 
 Now wait what is that third parameter used for? It's actually to denote whether we are doing a hold call which will preserve positioning within the IMS database. This would cause a Get Hold Unique (GHU) call to be flowed instead of a GU. In this case since we're just doing read operations, we will just set it to false.
 
-The `PCB.getUnique()` method should populate our `Path` object that we passed in. Go ahead and display the data that was retrieved. The following code shows how to do that for the **FIRSTNAME** and **LASTNAME** fields.
+The `PCB.getUnique()` method should populate our `Path` object that we passed in. Go ahead and display the data that was retrieved. The following code shows how to do that for the **FIRSTNAME** and **LASTNAME** fields (do not replace FIRSTNAME AND LASTNAME fields).
 ```java
 System.out.println("FIRSTNAME: " + path.getString("FIRSTNAME"));
 System.out.println("LASTNAME: " + path.getString("LASTNAME"));
@@ -421,26 +442,22 @@ Feel free to run your specific query through the translation but essentially the
 GU   A1111111(A1111111EQ*YOUR LAST NAME*   )
 ```
 
-The first A111111 is the name of our segment. The second A1111111 is actually the key field represented by LASTNAME. You can actually see the mapping if you looked at the XML metadata for that:
-```xml
-<field name="LASTNAME" imsName="A1111111" seqType="U" imsDatatype="C">
-    <startPos>1</startPos>
-    <bytes>10</bytes>
-    <marshaller encoding="Cp1047">
-        <typeConverter>CHAR</typeConverter>
-    </marshaller>
-    <applicationDatatype datatype="CHAR"/>
-</field>
-```
-
-So basically the code should be the same as Exercise 8 except for where we build the qualification statement. To get the following **A1111111(A1111111EQ*YOUR LAST NAME*   )**, you would use the following code sample:
+So basically the code should be the same as Exercise 8 except for where we build the qualification statement. To get the following **A1111111(A1111111EQ*YOUR LAST NAME*   )**, you would use the following code sample, don't forget to insert your last name:
 ```java
 PCB pcb = psb.getPCB("PCB01");
 SSAList ssaList = pcb.getSSAList("A1111111");
 Path path = ssaList.getPathForRetrieveReplace();
 
-SSAList ssaList = pcb.getSSAList("A1111111");
 ssaList.addInitialQualification("A1111111", "LASTNAME", SSAList.EQUALS, "insert your last name");
+
+pcb.getUnique(path, ssaList, false);
+
+System.out.println("FIRSTNAME: " + path.getString("FIRSTNAME"));
+System.out.println("LASTNAME: " + path.getString("LASTNAME"));
+
+while(pcb.getNext(path, ssaList, false)) {
+	System.out.println("FIRSTNAME: " + path.getString("FIRSTNAME"));
+}
 ```
 
 Once you're done coding and validating your output, go back to the `main()` method and comment out the following line:
@@ -466,7 +483,7 @@ REPL
 
 The first call is very similar to the GU statement we issued in Exercise 9. The main difference is now we're doing a GHU instead of GU which if you remember is toggled through the boolean parameter of the `PCB.getUnique()` method. This will save our position in the database so we can perform our update.
 
-Here's the code for the GHU call:
+Here's the code for the GHU call, don't forget to insert your last name:
 ```java
 PCB pcb = psb.getPCB("PCB01");
 SSAList ssaList = pcb.getSSAList("A1111111");
