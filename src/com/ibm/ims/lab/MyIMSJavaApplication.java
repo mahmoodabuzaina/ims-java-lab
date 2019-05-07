@@ -3,6 +3,7 @@ package com.ibm.ims.lab;
 import java.sql.*;
 import com.ibm.ims.jdbc.*;
 import com.ibm.ims.dli.*;
+import com.ibm.ims.dli.tm.*;
 
 
 
@@ -111,7 +112,7 @@ public class MyIMSJavaApplication {
 		Connection connection = createAnImsConnection(4);
 		
 		// Exercise 5 - Issue a SQL INSERT
-		//sql = "INSERT INTO PCB01.A1111111 (LASTNAME, FIRSTNAME, EXTENTION, ZIPCODE) VALUES ('REPLACE', 'REPLACE', 'REPLACE', 'REPLACE')";
+		//sql = "INSERT INTO PCB01.A1111111 (LASTNAME, FIRSTNAME, EXTENSION, ZIPCODE) VALUES ('REPLACE', 'REPLACE', 'REPLACE', 'REPLACE')";
 		
 		
 		// Exercise 6 - Issue a SQL UPDATE
