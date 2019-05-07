@@ -5,44 +5,33 @@ This lab's goal is to show a Java developer how to access an IMS database throug
 
 
 ## Getting started
-This lab is designed specifically for coding Java in an Eclipse IDE. It is meant to be instructor led where the laptops are already provided pre-configured for you but you should be able to run this on your own machine as well. If you get lost at any step, feel free to reference the solution provided in the `com.ibm.ims.lab.solutions.MyIMSJavaApplication.java` file
+This lab is designed specifically for coding Java in an Eclipse IDE. The laptops are already pre-configured for you with eclipse and the lab project pre-installed. If you get lost at any step, or have any questions, raise your hand to get help from the instructor or the assistants.
 
 ### Pre-requisites
-Software: 
-* [Eclipse Neon or later](https://www.eclipse.org) 
-* [Java 7 or later](https://java.com/en/)
+Software:
+* [Eclipse Neon or later](https://www.eclipse.org)
+* [Java 7 or later (Java 8 recommended)](https://java.com/en/)
 
 Skills:
 * Java programming - Beginner level
 * SQL programming - Beginner level
-* IMS - Beginner level 
-
-### Importing the Eclipse project
-The ims-java-lab project is designed as an Eclipse project and will need to get imported into your Eclipse development environment.
-1. Open up Eclipse
-2. Accept the default workspace or specify your own
-3. In the top menu, select File->Import
-4. Choose the "Existing Projects into Workspace" option in the popup wizard and click Next
-5. Click the "Browse" button next to the "Select root directory" radio and navigate to where you downloaded the ims-java-lab project.
-
-### Opening up the lab files
-1. Once your project has been imported, you should have a **ims-java-lab** project in the **Project Explorer**. 
-2. Expand out the following folders: **ims-java-lab->src->com.ibm.ims.lab**
-3. Double click on the `MyIMSJavaApplication.java` file. The majority of your work will be done in this file.
-
-### Adding the IMS JDBC driver to your project
-You'll notice that the you'll have a build path error for a required library. That library is the IMS Universal JDBC driver which was not bundled as part of this sample for legal reasons. 
-1. Download the [IMS Universal JDBC driver](https://www.ibm.com/it-infrastructure/z/ims/resources)
-2. Copy the imsudb.jar file to the **lib/** directory in your **ims-java-lab** project
+* IMS - Beginner level
 
 ## Writing a distributed Java application
-The first part of the lab is to develop a distributed Java application. In this case when we say distributed, we're specifically talking about any non z/OS environment that supports Java. 
+In this lab we will be developing a distributed Java application. In this case when we say distributed, we're specifically talking about any non z/OS environment that supports Java.
 
 Connections to IMS resources on the mainframe from a distributed environment requires a TCP/IP connection through an IMS Connect TCP/IP gateway. For our distributed application, we will be connecting through a pre-configured IMS Connect that resides on a public demo system.
 
-We will cover two different query languages in this lab. Exercises 1 through 7 will cover use the IMS JDBC driver to issue SQL queries and Exercises 8 through 10 will cover using the IMS Java DL/I API to issue DL/I queries.
+We will cover two different query languages in this lab. Exercises 1 through 7 will cover the use of IMS JDBC driver to issue SQL queries and Exercises 8 through 10 will cover using the IMS Java DL/I API to issue DL/I queries.
+
+### Opening up the lab Java file
+1. Open up Eclipse.
+2. You should have a **ims-java-lab** project in the **Package Explorer**.
+3. Expand out the following folders: **ims-java-lab->src->com.ibm.ims.lab**
+4. Double click on the `MyIMSJavaApplication.java` file. The majority of your work will be done in this file.
 
 ### Exercise 1: Creating a Type-4 JDBC connection to an IMS database
+Overview:
 The following information is required to connect to an IMS database from an external environment
 1. Hostname/IP address of the IMS Connect
 2. Port number for the IMS Connect
@@ -50,7 +39,14 @@ The following information is required to connect to an IMS database from an exte
 4. Password to authenticate against RACF
 5. The IMS Program specification block (PSB) name that the user will access
 
-In `MyIMSJavaApplication.java`, go ahead and uncomment the line under Exercise 1 in the `main()` method by removing the comments ('//'). 
+These information would be set in an **IMSDataSource** object. The following shows how to create the object:
+
+```java
+IMSDataSource ds = new IMSDataSource();
+```
+
+Now let's start:
+In `MyIMSJavaApplication.java`, go ahead and uncomment the line under Exercise 1 in the `main()` method by removing the comments ('//').
 
 ```java
 createAnImsConnection(4).close();
@@ -66,11 +62,9 @@ IMSDataSource ds = new IMSDataSource();
 
 Now use the appropriate setters on your IMSDataSource object to set the following parameters:
 1. **host**: To be provided by the lab instructor
-2. **port number**: To be provided by the lab instructor
+2. **port number**: 2500
 3. **driver type**: 4
-4. **user**: To be provided by the lab instructor
-5. **password**: To be provided by the lab instructor
-6. **database name**: PHIDPHO1 *<-- This is actually the PSB name*
+4. **database name**: PHIDPHO1 *<-- This is actually the PSB name*
 
 Setter example for host:
 
@@ -101,7 +95,7 @@ Apr 16, 2018 1:52:18 PM com.ibm.ims.dli.PSBInternalFactory createPSB
 INFO: IMS Universal Drivers build number: 14066
 ```
 
-The output shows that we created a connection to the system and validated functional levels between the server and the client. 
+The output shows that we created a connection to the system and validated functional levels between the server and the client.
 
 Let's disable Excercise 1 before moving on by adding the comments back in the `main()` method
 
@@ -110,7 +104,8 @@ Let's disable Excercise 1 before moving on by adding the comments back in the `m
 ```
 
 ### Exercise 2: Discovering the database metadata
-Now that we have a connection to IMS, the next step is to discover what databases are available for access through the PSB (IVPDB1) defined in the connection from Exercise 1. This database metadata information would be stored in the IMS catalog which is IMS' trusted source for information. This information has been mapped to standard JDBC DatabaseMetadata discovery which many JDBC based tools use.
+Overview:
+Now that we have a connection to IMS, the next step is to discover what databases are available for access through the PSB (PHIDPHO1) defined in the connection from Exercise 1. This database metadata information would be stored in the IMS catalog which is IMS' trusted source for information. This information has been mapped to standard JDBC **DatabaseMetadata** discovery which many JDBC based tools use.
 
 The following is a mapping of terms from IMS to the relational model that the JDBC interface uses:
 * Program Control Block (PCB) == Schemas
@@ -118,13 +113,13 @@ The following is a mapping of terms from IMS to the relational model that the JD
 * Database Fields == Database Columns
 * Database Records == Database Rows
 
+Let's get started:
 Similar to Exercise 1, we will want to uncomment the following line in the `main()` method:
-
 ```java
 displayMetadata();
 ```
 
-Now navigate to the `displayMetadata()` implementation, you'll notice that we are first establishing a connection to the IMS system by taking advantage of the code we wrote in Exercise 1. 
+Now navigate to the `displayMetadata()` implementation, you'll notice that we are first establishing a connection to the IMS system by taking advantage of the code we wrote in Exercise 1.
 
 Let's take that connection object and retrieve a queryable DatabaseMetaData object from that.
 
@@ -135,11 +130,11 @@ DatabaseMetaData dbmd = connection.getMetaData();
 The `DatabaseMetaData` class contains [several methods](https://docs.oracle.com/javase/7/docs/api/java/sql/DatabaseMetaData.html) for discovery which typically returns back a ResultSet object. Let's discover what PCBs are available by using the `getSchemas()` method. Remember that PCBs have a one to one mapping with schemas. The following code will show how to invoke the `getSchemas()` method and display the output.
 
 ```java
-// Display IMS PCB information
+// Get IMS PCB information
 ResultSet rs = dbmd.getSchemas("PHIDPHO1", null);
 ResultSetMetaData rsmd = rs.getMetaData();
 int colCount = rsmd.getColumnCount();
-		
+
 System.out.println("Displaying IMS PCB metadata");
 while (rs.next()) {
   for (int i = 1; i <= colCount; i++) {
@@ -161,29 +156,12 @@ DBD_TIMESTAMP: 1810711232054
 We can dig even further into the database segments and fields with the following query. Use the same format as above to process the ResultSet object:
 
 ```java
-// Display IMS segment information
+// Get IMS segment information
 rs = dbmd.getTables("PHIDPHO1", "PCB01", null, null);
 
-// Display IMS field information
+// Get IMS field information
 rs = dbmd.getColumns("PHIDPHO1", "PCB01", "A1111111", null);
 ```
-
-You'll notice that there is a lack of field information for the phonebook database. Traditionally, additional metadata information would be stored in a COBOL copybook or a PL/I include file. It would be up to the IMS Database Administrator (DBA) and IMS System Programmer to incorporate this information into the IMS catalog. 
-
-Since we don't have either available, we're going to take advantage of a little known [secret](https://imsinsiders.wordpress.com/2018/03/15/how-to-try-out-an-ims-catalog-without-an-actual-catalog-using-the-ims-jdbc-driver/). The way the IMS JDBC driver retrieves metadata from the IMS catalog is through the IMS GUR DL/I call which returns an XML representation of the requested resource. For now, we will proxy our local XML file instead of issuing a GUR for additional metadata. You should see the two files we will be referencing in the /src directory for both our PSB and DBD:
-* PHIDPHO1.xml
-* IVPDB1.xml
-
-Let's modify our connection property in the `createAnImsConnection()` method to point to our local XML file:
-```java
-ds.setDatabaseName("xml://PHIDPHO1");
-```
-
-Now re-run the `DatabaseMetaData.getColumns()` method to view the additional fields. You should now see the following additional fields:
-* LASTNAME
-* FIRSTNAME
-* EXTENTION
-* ZIPCODE
 
 That completes Exercise 2. Let's go ahead and disable the following line in the `main()` method by commenting it out:
 ```java
@@ -197,7 +175,7 @@ Now that we have a good understanding of what our database looks like. We can go
 executeAndDisplaySqlQuery();
 ```
 
-Let's now navigate to the `executeAndDisplaySqlQuery()` method and write our SQL SELECT statement to issue a read request against the database. 
+Let's now navigate to the `executeAndDisplaySqlQuery()` method and write our SQL SELECT statement to issue a read request against the database.
 
 An initial query has already been written `SELECT * FROM PCB01.A1111111`. This is based off of our database metadata discovery where we know the PSB PHIDPHO1 contains a PCB PCB01 which has a segment A111111 that contains fields related to a phonebook.
 
@@ -210,15 +188,18 @@ ResultSet rs = st.executeQuery(sql);
 
 You can process the `ResultSet` in a similar manner to what we did in Exercise 2. You should see output similar to the following:
 ```
-LASTNAME: LAST1     
-FIRSTNAME: FIRST1    
+LASTNAME: LAST1
+FIRSTNAME: FIRST1
 EXTENTION: 8-111-1111
-ZIPCODE: D01/R01 
+ZIPCODE: D01/R01
+```
+That completes Exercise 3. Let's go ahead and disable the following line in the `main()` method by commenting it out:
+```java
+//executeAndDisplaySqlQuery();
 ```
 
-
 ### Exercise 4: Looking at how IMS breaks down SQL queries
-The native query language for an IMS database is DL/I. In order for IMS to process SQL queries, those queries will need to be translated into the DL/I equivalent. Sometimes, it's useful for debugging or tuning purposes to look at how a SQL query is broken down. 
+The native query language for an IMS database is DL/I. In order for IMS to process SQL queries, those queries will need to be translated into the DL/I equivalent. Sometimes, it's useful for debugging or tuning purposes to look at how a SQL query is broken down.
 
 So where is this translation being done? In this case, the IMS JDBC driver handles all of the translation. It exposes the translation through the `Connection.nativeSql()` method
 
@@ -229,7 +210,6 @@ displayDliTranslationForSqlQuery()
 
 Let's take a look at the the translation for the previous SQL query by adding the following code snippet to the `displayDliTranslationForSqlQuery()` method:
 ```java
-String sql = "SELECT * FROM PCB01.A1111111";
 System.out.println("DL/I translation for '" + sql + "' is:");
 System.out.println(connection.nativeSQL(sql));
 ```
@@ -237,10 +217,10 @@ System.out.println(connection.nativeSQL(sql));
 You should see the following output in your console:
 ```
 DL/I translation for 'SELECT * FROM PCB01.A1111111' is:
-GU   A1111111 
+GU   A1111111
 
 (LOOP)
-GN   A1111111 
+GN   A1111111
 
 NOTE: GU/GN VALID only if not overruled by CONCUR_UPDATABLE ResultSet concurrency
 ```
@@ -269,27 +249,27 @@ The format for a SQL INSERT statement can be found [here](https://www.w3schools.
 
 The following code snippet will insert a record into the database. Make sure to modify the values for the entry you want to add.
 ```java
-sql = "INSERT INTO PCB01.A1111111 (LASTNAME, FIRSTNAME, EXTENTION, ZIPCODE) VALUES ('BAGGINS', 'FRODO', '123456A', '12345')";
+sql = "INSERT INTO PCB01.A1111111 (LASTNAME, FIRSTNAME, EXTENTION, ZIPCODE) VALUES ('insert your last name', 'insert your first name', '123456A', '12345')";
 Statement st = connection.createStatement();
 System.out.println("Inserted " + st.executeUpdate(sql) + " record");
-```		
+```
 
 Run the Java application and verify that your new record was inserted properly. You should see something like the following in your output:
 ```
 Inserted 1 record
 
 Displaying query results
-LASTNAME: BAGGINS   
-FIRSTNAME: FRODO     
-EXTENTION: 123456A   
-ZIPCODE: 12345     
+LASTNAME: *Your last name*
+FIRSTNAME: *Your first name*
+EXTENTION: 123456A
+ZIPCODE: 12345
 ```
 
 What happens if you try to insert the same record again? We would expect an error as we can't have two records with the same unique key. Try running your application again. You should see the following error message
 ```
 com.ibm.ims.drda.base.DrdaException: An error occurred processing the database DHIDPHO1. AIB return code: 0x900. AIB reason code: 0x0. AIB error code extension: 0x0. DBPCB status code: II.
  ```
- 
+
 You'll notice that the we get some AIB return and reason code in addition to a DBPCB status code. This error information is actually returned by the IMS database as a result of attempting to execute the translated DL/I query. Looking at the [IMS knowledge center](https://www.ibm.com/support/knowledgecenter/en/SSEPH2_15.1.0/com.ibm.ims15.doc.msgs/msgs/ii.htm), we can see that the II status code is returned on a DL/I ISRT call when a record already exists in the database.
 
 Before moving on to the next exercise let's make sure we comment out any code we added to the `executeASqlInsertOrUpdate()` method.
@@ -299,20 +279,21 @@ Before moving on to the next exercise let's make sure we comment out any code we
 Let's take the record we inserted in the previous exercise and update it using a SQL UPDATE statement. The format for a SQL UPDATE can be found [here](https://www.w3schools.com/sql/sql_update.asp).
 
 We want to make sure only update the record we inserted earlier. This can be done by qualifying on the LASTNAME field which we know is a unique field. The following code snippet shows how to issue a SQL UPDATE query, make sure to modify the fields and qualifier as necessary.
+Inside executeASqlInsertOrUpdate() add:
 ```java
-sql = "UPDATE PCB01.A1111111 SET FIRSTNAME='BILBO' WHERE LASTNAME='BAGGINS'";
+sql = "UPDATE PCB01.A1111111 SET FIRSTNAME='BILBO' WHERE LASTNAME='insert your last name'";
 Statement st = connection.createStatement();
 System.out.println("Updated " + st.executeUpdate(sql) + " record(s)");
 ```
-
-After running your application, you should see similar output in your console:
+Insure the last name you have entered in the SQL query is the same as exercise 5.
+After running your application, you should see similar output in your console (you may have to scroll up to see the result):
 ```
 Updated 1 record(s)
 
 Displaying query results
-LASTNAME: BAGGINS   
-FIRSTNAME: BILBO     
-EXTENTION: 123456A   
+LASTNAME: *Your last name*
+FIRSTNAME: BILBO
+EXTENTION: 123456A
 ZIPCODE: 12345
 ```
 
@@ -343,12 +324,10 @@ We will again reuse the same connection information from our JDBC connection for
 You'll first want to instantiate an `IMSConnectionSpec` object to hold all of the connection properties. The following code snippet shows how to do that:
 ```java
 IMSConnectionSpec imsConnSpec = IMSConnectionSpecFactory.createIMSConnectionSpec();
-imsConnSpec.setDatastoreServer("sample.host.name");
-imsConnSpec.setPortNumber(5555);
+imsConnSpec.setDatastoreServer("IP will be provided");
+imsConnSpec.setPortNumber(2500);
 imsConnSpec.setDatabaseName("xml://PHIDPHO1");
-imsConnSpec.setUser("myUser");
-imsConnSpec.setPassword("myPass");
-imsConnSpec.setDriverType(driverType);
+imsConnSpec.setDriverType(4);
 ```
 
 Notice that the main difference here from what we did with the `IMSDataSource` object in Exercise 1, is we use `IMSConnectionSpec.setDatastoreServer()` instead of `IMSDataSource.setHost()` but they both point to the same hostname or ip address for your IMS Connect.
@@ -375,10 +354,10 @@ Now that our connection code is good, go back and comment out the following line
 ### Exercise 8: Read all records from the database using GU/GN calls
 Now that we have a connection lets go ahead and retrieve all records from the database. This would be the equivalent of a `SELECT * FROM PCB01.A1111111` SQL query. In Exercise 4, we saw that such a query translated to the following in DL/I:
 ```
-GU   A1111111 
+GU   A1111111
 
 (LOOP)
-GN   A1111111 
+GN   A1111111
 ```
 
 So we know we will be issuing a Get Unique (GU) call and then looping through a bunch of Get Next (GN) calls with a SSA List of A1111111. Let's go ahead and uncomment the following line in the `main()` method.
@@ -412,8 +391,8 @@ System.out.println("LASTNAME: " + path.getString("LASTNAME"));
 
 We should of gotten console output similar to the following:
 ```
-FIRSTNAME: BILBO      
-LASTNAME: BAGGINS  
+FIRSTNAME: BILBO
+LASTNAME: *Your last name*
 ```
 
 Now let's retrieve the remaining records using the `PCB.getNext()` method. Remember that we'll want to loop through this. The `PCB.getNext()` method will return a boolean value indicating whether another record exists in the database. Lets do a simple `while` loop to process and display data from the remaining records.
@@ -435,11 +414,11 @@ readASpecificRecordWithDliGu();
 ```
 
 Essentially we want to issue a query similar to the following:
-`SELECT * FROM PCB01.A1111111 WHERE LASTNAME='BAGGINS'`
+`SELECT * FROM PCB01.A1111111 WHERE LASTNAME='insert your last name'`
 
 Feel free to run your specific query through the translation but essentially the equivalent query will look like the following:
 ```
-GU   A1111111(A1111111EQBAGGINS   )
+GU   A1111111(A1111111EQ*YOUR LAST NAME*   )
 ```
 
 The first A111111 is the name of our segment. The second A1111111 is actually the key field represented by LASTNAME. You can actually see the mapping if you looked at the XML metadata for that:
@@ -454,10 +433,14 @@ The first A111111 is the name of our segment. The second A1111111 is actually th
 </field>
 ```
 
-So basically the code should be the same as Exercise 8 except for where we build the qualification statement. To get the following **A1111111(A1111111EQBAGGINS   )**, you would use the following code sample:
+So basically the code should be the same as Exercise 8 except for where we build the qualification statement. To get the following **A1111111(A1111111EQ*YOUR LAST NAME*   )**, you would use the following code sample:
 ```java
+PCB pcb = psb.getPCB("PCB01");
 SSAList ssaList = pcb.getSSAList("A1111111");
-ssaList.addInitialQualification("A1111111", "LASTNAME", SSAList.EQUALS, "BAGGINS");
+Path path = ssaList.getPathForRetrieveReplace();
+
+SSAList ssaList = pcb.getSSAList("A1111111");
+ssaList.addInitialQualification("A1111111", "LASTNAME", SSAList.EQUALS, "insert your last name");
 ```
 
 Once you're done coding and validating your output, go back to the `main()` method and comment out the following line:
@@ -473,11 +456,11 @@ readASpecificRecordWithDliGu();
 ```
 
 Here we will be writing the equivalent of the following SQL statement:
-`UPDATE PCB01.A1111111 SET FIRSTNAME='FRODO' WHERE LASTNAME='BAGGINS'`
- 
+`UPDATE PCB01.A1111111 SET FIRSTNAME='FRODO' WHERE LASTNAME='insert your last name'`
+
 Feel free to run your specific SQL through the translator but in general the DL/I equivalent should look like the following:
 ```
-GHU  A1111111(A1111111EQBAGGINS   )
+GHU  A1111111(A1111111EQ*YOUR LAST NAME*   )
 REPL
 ```
 
@@ -487,12 +470,12 @@ Here's the code for the GHU call:
 ```java
 PCB pcb = psb.getPCB("PCB01");
 SSAList ssaList = pcb.getSSAList("A1111111");
-ssaList.addInitialQualification("A1111111", "LASTNAME", SSAList.EQUALS, "BAGGINS");
+ssaList.addInitialQualification("A1111111", "LASTNAME", SSAList.EQUALS, "insert your last name");
 Path path = ssaList.getPathForRetrieveReplace();
 pcb.getUnique(path, ssaList, true);
 ```
 
-Now the Path object here contains the current row data. We'll want to update the values in the path object and then push it back to the database with the `PCB.replace()` method. In the following example we're updating the **FIRSTNAME** back to *FRODO* from *BILBO*.
+Now the Path object here contains the current row data. We'll want to update the values in the path object and then push it back to the database with the `PCB.replace()` method. In the following example we're updating the **FIRSTNAME**.
 ```java
 path.setString("FIRSTNAME", "FRODO");
 pcb.replace(path);
@@ -507,13 +490,13 @@ Run the application and validate that your record was indeed updated. Once you'r
 
 ## Writing a native Java application
 The IMS Transaction Manager supports writing native IMS applications in Java within an IMS Java dependent region. IMS supports several different types of [dependent regions](https://www.ibm.com/support/knowledgecenter/en/SSEPH2_15.1.0/com.ibm.ims15.doc.sag/system_intro/ims_depend-regions.htm):
-* Batch Message Processing (BMP) 
+* Batch Message Processing (BMP)
 * Message Processing Program (MPP)
 * IMS Fast Path (IFP)
 * Java Message Processing (JMP)
 * Java Batch Processing (JBP)
 
-Typically when referring to the IMS Java dependent regions, we will be talking about both JMP and JBP regions. Also the JMP and JBP regions are the respective Java equivalents for MPP and BMP regions. 
+Typically when referring to the IMS Java dependent regions, we will be talking about both JMP and JBP regions. Also the JMP and JBP regions are the respective Java equivalents for MPP and BMP regions.
 
 IMS actually supports Java in every dependent region for [language interoperability](https://developer.ibm.com/zsystems/documentation/java/ims/). The region that gets chosen will depend on what language is called first. If your application entry point is written in COBOL which then calls Java, you should be using a non-Java dependent region. If your application entry point is Java, then a Java dependent region should be used. This lab will not cover language interoperability.
 
@@ -529,13 +512,13 @@ Within the `executeNativeApplication()` method, you'll see that the first thing 
 } else if (driverType == 2) {
   // A Type-2 JDBC connection is used for local access on the mainframe
   // Exercise 7: Retrieve a Type-2 JDBC connection and set it to the connection object
-			
+
 }
 ```
 
 The implementation is remarkably similar to what we did for our Type-4 connection. The only differences is that we no longer need to a host or port as we're not connecting through TCP/IP and we specify the Driver Type to be 2.
 
-After you have finished implementing the code to create a Type-2 connection, let's go back to the `executeNativeApplication()` method. You'll see that in addition to the `Connection` object, we will be working with an `Application` and a `Transaction` object. These will be used to define our unit of work. You can think of the unit of work as the scope for what actions will be committed or rollbacked. 
+After you have finished implementing the code to create a Type-2 connection, let's go back to the `executeNativeApplication()` method. You'll see that in addition to the `Connection` object, we will be working with an `Application` and a `Transaction` object. These will be used to define our unit of work. You can think of the unit of work as the scope for what actions will be committed or rollbacked.
 
 Let's add some work within the unit of work by processing a simple SQL SELECT query to retrieve the record you had inserted and updated earlier in Exercises 5 and 6. Make sure to display it as well with `System.out.println()`. The main difference with what we did earlier is this output will not be displayed within the Eclipse console but instead to the job log for our native application.
 
@@ -544,7 +527,7 @@ While the unit of work for this application is very small, you can have much lon
 #### Exporting your native application
 Now because this is meant to be a native application, it will need to be deployed to the mainframe. In order to deploy this let's go ahead and export the project as a Java archive (JAR) file.
 
-1. Right click on the **ims-java-lab** project in the **Project Explorer** view on the left. 
+1. Right click on the **ims-java-lab** project in the **Project Explorer** view on the left.
 2. Select **Export...** from the context pop-up menu.
 3. Choose the **JAR File** option and click **Next**
 4. In the **Select the export destination:** input box, choose an easy to navigate to directory and provide the following file name for the jar file, *ImsJavaLab.jar*
