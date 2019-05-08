@@ -39,7 +39,7 @@ The following information is required to connect to an IMS database from an exte
 4. Password to authenticate against RACF
 5. The IMS Program specification block (PSB) name that the user will access
 
-These information would be set in an **IMSDataSource** object. The following shows how to create the object:
+This information would be set in an **IMSDataSource** object. The following shows how to create the object:
 
 ```java
 IMSDataSource ds = new IMSDataSource();
@@ -63,9 +63,9 @@ IMSDataSource ds = new IMSDataSource();
 In `MyIMSJavaApplication.java`, go ahead and uncomment the following lines of code:
 ```java
 ds.setHost("insert IP address");
-ds.setPortNumber(insert port number);
-ds.setDriverType(insert driver type number);
-ds.setDatabaseName("insert database name");
+ds.setPortNumber(insert port number); 
+ds.setDriverType(insert driver type number); 
+ds.setDatabaseName("insert database name"); 
 ```
 You will notice some errors, that's because the values are not yet set. Now go ahead and use the following information to insert the correct values to set up your IMSDataSource object to establish a connection:
 1. **host**: IP address to be provided by the lab instructor
@@ -124,13 +124,13 @@ displayMetadata();
 
 Now navigate to the `displayMetadata()` implementation, you'll notice that we are first establishing a connection to the IMS system by taking advantage of the code we wrote in Exercise 1.
 
-Let's take that connection object and retrieve a queryable DatabaseMetaData object from that. Copy and paste the following line of code:
+Let's take that connection object and retrieve a queryable DatabaseMetaData object from that. Copy and paste the following line of code under the `// Exercise 2 ` comment:
 
 ```java
 DatabaseMetaData dbmd = connection.getMetaData();
 ```
 
-The `DatabaseMetaData` class contains [several methods](https://docs.oracle.com/javase/7/docs/api/java/sql/DatabaseMetaData.html) for discovery which typically returns back a ResultSet object. Let's discover what PCBs are available by using the `getSchemas()` method. Remember that PCBs have a one to one mapping with schemas. The following code will show how to invoke the `getSchemas()` method and display the output. Copy and paste the following code:
+The `DatabaseMetaData` class contains [several methods](https://docs.oracle.com/javase/7/docs/api/java/sql/DatabaseMetaData.html) for discovery which typically returns back a ResultSet object. Let's discover what PCBs are available by using the `getSchemas()` method. Remember that PCBs have a one to one mapping with schemas. The following code will show how to invoke the `getSchemas()` method and display the output. Copy and paste the following code block after `DatabaseMetaData dbmd = connection.getMetaData();`:
 
 ```java
 // Get IMS PCB information
@@ -145,7 +145,7 @@ while (rs.next()) {
   }
 }
 ```
-now run your application.
+Now run your application.
 
 In addition to using DatabaseMetaData for discovery of the database, we also used ResultSetMetaData above to identify information on the ResultSet returned by the getSchemas() call. We will be using ResultSetMetaData in most of the following exercises in order to display a readable output like the following:
 
@@ -188,7 +188,7 @@ Let's now navigate to the `executeAndDisplaySqlQuery()` method and write our SQL
 
 An initial query has already been written `SELECT * FROM PCB01.A1111111`. This is based off of our database metadata discovery where we know the PSB PHIDPHO1 contains a PCB PCB01 which has a segment A111111 that contains fields related to a phonebook.
 
-The way we would execute a read query is through the `Statement.executeQuery()` method. We can get a `Statement` object off of the `Connection`. The following code shows how to do that.
+The way we would execute a read query is through the `Statement.executeQuery()` method. We can get a `Statement` object off of the `Connection`. The following code shows how to do that. Copy and paste the following block of code after `String sql = "SELECT * FROM PCB01.A1111111";` :
 
 ```java
 Statement st = connection.createStatement();
@@ -204,7 +204,7 @@ while (rs.next()) {
 }
 ```
 
-You can process the `ResultSet` in a similar manner to what we did in Exercise 2. You should see output similar to the following:
+You should see output similar to the following:
 ```
 LASTNAME: LAST1
 FIRSTNAME: FIRST1
@@ -219,7 +219,7 @@ That completes Exercise 3. Let's go ahead and disable the following line in the 
 ### Exercise 4: Looking at how IMS breaks down SQL queries
 The native query language for an IMS database is DL/I. In order for IMS to process SQL queries, those queries will need to be translated into the DL/I equivalent. Sometimes, it's useful for debugging or tuning purposes to look at how a SQL query is broken down.
 
-So where is this translation being done? In this case, the IMS JDBC driver handles all of the translation. It exposes the translation through the `Connection.nativeSql()` method
+So where is this translation being done? In this case, the IMS JDBC driver handles all of the translation. It exposes the translation through the `Connection.nativeSql()` method.
 
 Let's start by uncommenting the following line in the `main()` method.
 ```java
@@ -265,7 +265,7 @@ The database segment that we have been looking at is keyed off of the LASTNAME p
 
 The format for a SQL INSERT statement can be found [here](https://www.w3schools.com/sql/sql_insert.asp). Similar to what we did for a SQL SELECT, we will be using a `Statement` object to issue the SQL statement. However instead of using the `executeQuery()` method which is for database reads, we will want to use the `executeUpdate()` method for database inserts, updates and deletes.
 
-The following code snippet will insert a record into the database. Make sure to modify the values for the entry you want to add.
+The following code snippet will insert a record into the database. Make sure to modify the values for the entry you want to add. Also make sure your entry does not exceed 10 characters.
 ```java
 sql = "INSERT INTO PCB01.A1111111 (LASTNAME, FIRSTNAME, EXTENSION, ZIPCODE) VALUES ('insert your last name', 'insert your first name', '123456A', '12345')";
 Statement st = connection.createStatement();
@@ -290,14 +290,14 @@ com.ibm.ims.drda.base.DrdaException: An error occurred processing the database D
 
 You'll notice that the we get some AIB return and reason code in addition to a DBPCB status code. This error information is actually returned by the IMS database as a result of attempting to execute the translated DL/I query. Looking at the [IMS knowledge center](https://www.ibm.com/support/knowledgecenter/en/SSEPH2_15.1.0/com.ibm.ims15.doc.msgs/msgs/ii.htm), we can see that the II status code is returned on a DL/I ISRT call when a record already exists in the database.
 
-Before moving on to the next exercise, let's make sure we comment out any code we added to the `executeASqlInsertOrUpdate()` method.
+Before moving on to the next exercise, let's make sure we comment out any code we added **within** the `executeASqlInsertOrUpdate()` method.
 
 
 ### Exercise 6: Updating a record in the database
 Let's take the record we inserted in the previous exercise and update it using a SQL UPDATE statement. The format for a SQL UPDATE can be found [here](https://www.w3schools.com/sql/sql_update.asp).
 
 We want to make sure only update the record we inserted earlier. This can be done by qualifying on the LASTNAME field which we know is a unique field. The following code snippet shows how to issue a SQL UPDATE query, make sure to modify the fields and qualifier as necessary.
-Inside executeASqlInsertOrUpdate() add the following (don't forget to insert your last name):
+Inside `executeASqlInsertOrUpdate()` add the following (don't forget to insert your last name):
 ```java
 sql = "UPDATE PCB01.A1111111 SET FIRSTNAME='BILBO' WHERE LASTNAME='insert your last name'";
 Statement st = connection.createStatement();
@@ -343,7 +343,7 @@ You'll first want to instantiate an `IMSConnectionSpec` object to hold all of th
 ```java
 IMSConnectionSpec imsConnSpec = IMSConnectionSpecFactory.createIMSConnectionSpec();
 ```
-In your java file, uncomment the following lines by removing ('//') and set the approapriate values in the setters:
+In your java file, uncomment the following lines by removing ('//') and set the appropriate values in the setters:
 ```java
 imsConnSpec.setDatastoreServer("insert IP address");
 imsConnSpec.setPortNumber(insert port number);
