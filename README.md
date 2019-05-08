@@ -409,7 +409,7 @@ pcb.getUnique(path, ssaList, false);
 
 Now wait what is that third parameter used for? It's actually to denote whether we are doing a hold call which will preserve positioning within the IMS database. This would cause a Get Hold Unique (GHU) call to be flowed instead of a GU. In this case since we're just doing read operations, we will just set it to false.
 
-The `PCB.getUnique()` method should populate our `Path` object that we passed in. Go ahead and display the data that was retrieved. The following code shows how to do that for the **FIRSTNAME** and **LASTNAME** fields (do not replace FIRSTNAME AND LASTNAME fields).
+The `PCB.getUnique()` method should populate our `Path` object that we passed in. Go ahead and display the data that was retrieved. The following code shows how to do that for the **FIRSTNAME** and **LASTNAME** fields (do not replace FIRSTNAME and LASTNAME fields).
 ```java
 System.out.println("FIRSTNAME: " + path.getString("FIRSTNAME"));
 System.out.println("LASTNAME: " + path.getString("LASTNAME"));
