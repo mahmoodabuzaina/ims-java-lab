@@ -350,6 +350,11 @@ imsConnSpec.setPortNumber(insert port number);
 imsConnSpec.setDatabaseName("insert database name");
 imsConnSpec.setDriverType(insert driver type number);
 ```
+Use the following information to insert the correct values to establish a connection:
+1. **host**: IP address to be provided by the lab instructor
+2. **port number**: 2500
+3. **driver type**: 4
+4. **database name**: PHIDPHO1 *<-- This is actually the PSB name* (**Notice that O is not a zero**)
 
 Notice that the main difference here from what we did with the `IMSDataSource` object in Exercise 1, is we use `IMSConnectionSpec.setDatastoreServer()` instead of `IMSDataSource.setHost()` but they both point to the same hostname or ip address for your IMS Connect.
 
