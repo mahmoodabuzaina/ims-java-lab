@@ -226,7 +226,7 @@ Let's start by uncommenting the following line in the `main()` method.
 displayDliTranslationForSqlQuery();
 ```
 
-Let's take a look at the the translation for the previous SQL query by adding the following code snippet to the `displayDliTranslationForSqlQuery()` method:
+Let's take a look at the the translation for the previous SQL query by adding the following code snippet to the `displayDliTranslationForSqlQuery()` method after the SQL string:
 ```java
 System.out.println("DL/I translation for '" + sql + "' is:");
 System.out.println(connection.nativeSQL(sql));
